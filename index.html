@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asmaul Husna - 99 Nama Allah</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script>
+    tailwind.config = {
+        theme: {
+        extend: {
+            colors: {
+            gold: {
+                DEFAULT: '#facc15',
+                light: '#fef08a',
+                dim: 'rgba(250,204,21,0.6)',
+                faint: 'rgba(250,204,21,0.3)',
+                glow: 'rgba(250,204,21,0.5)',
+            }
+            },
+            fontFamily: {
+            serif: ['Georgia', 'Times New Roman', 'serif'],
+            },
+            animation: {
+            'twinkle': 'twinkle var(--dur, 2s) infinite alternate',
+            'bounce-hint': 'bounce-hint 2s infinite',
+            'float-up': 'float-up var(--spd, 8s) linear infinite',
+            }
+        }
+        }
+    }
+</script>
+<style>
+  /* Keyframe animations */
+    @keyframes twinkle {
+        from { opacity: 0.2; transform: scale(0.8); }
+        to   { opacity: 1;   transform: scale(1.2); }
+    }
+
+    @keyframes bounce-hint {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50%       { transform: translateX(-50%) translateY(8px); }
+    }
+
+    @keyframes float-up {
+        0%   { opacity: 0; transform: translateY(0) scale(1); }
+        10%  { opacity: 0.7; }
+        90%  { opacity: 0.4; }
+        100% { opacity: 0; transform: translateY(-80vh) scale(0.3); }
+    }
+
+    @keyframes scroll-dot {
+        0%, 100% { cy: 7; opacity: 1; }
+        50%       { cy: 14; opacity: 0; }
+    }
+
+    .star {
+        animation: twinkle var(--dur, 2s) infinite alternate;
+        animation-delay: var(--delay, 0s);
+    }
+
+    .particle {
+        animation: float-up var(--spd, 8s) linear infinite;
+        animation-delay: var(--pdelay, 0s);
+    }
+
+    .scroll-hint-wrapper {
+        animation: bounce-hint 2s infinite;
+    }
+
+    /* Fade-in card transition */
+    .name-card {
+        opacity: 0;
+        transform: translateY(60px);
+        transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+    .name-card.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Tafsir strip transition */
+    .tafsir-strip {
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+    .tafsir-strip.shown {
+        opacity: 1;
+    }
+
+    /* Sky transition */
+    #sky {
+        transition: background 2s ease;
+    }
+
+    /* Smooth progress bar */
+    #progress-bar {
+        transition: width 0.2s ease;
+    }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+</head>
+<body class="w-full min-h-screen font-serif overflow-x-hidden">
+
+    <!-- Background Langit -->
+    <div id="sky" class="fixed inset-0 z-0"></div>
+
+    <!-- Bintang -->
+    <div id="stars-layer" class="fixed inset-0 z-[1] pointer-events-none"></div>
+
+    <!-- Bulan -->
+    <svg id="moon"
+        class="fixed top-12 right-18 w-20 h-20 z-[2] pointer-events-none drop-shadow-[0_0_18px_rgba(250,204,21,0.85)]"
+        style="top:48px;right:72px;"
+        viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="34" fill="#facc15"/>
+        <circle cx="54" cy="36" r="30" fill="#1e1b4b"/>
+    </svg>
+
+    <!-- Progress bar -->
+    <div id="progress-bar"
+        class="fixed top-0 left-0 h-1 w-0 z-[100]"
+        style="background: linear-gradient(to right, #facc15, #fef08a);">
+    </div>
+
+    <!-- Page number -->
+    <div id="page-num"
+        class="fixed top-3.5 right-4 z-[100] text-xs text-white/55 tracking-widest font-sans">
+    </div>
+
+    <!-- Scroll hint -->
+    <div id="scroll-hint"
+        class="fixed bottom-8 left-1/2 z-[100] flex flex-col items-center gap-1.5 pointer-events-none scroll-hint-wrapper">
+        <span class="text-xs text-white/45 font-sans tracking-widest">SCROLL</span>
+        <svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="16" height="22" rx="8" stroke="white" stroke-width="1.5"/>
+        <circle cx="9" cy="7" r="2" fill="white" opacity="0.4">
+            <animate attributeName="cy" values="7;14;7" dur="1.8s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="1;0;1" dur="1.8s" repeatCount="indefinite"/>
+        </circle>
+        </svg>
+    </div>
+
+    <!-- Main content -->
+    <div id="content" class="relative z-[3]"></div>
+
+    <!-- Modal overlay -->
+    <div id="modal-overlay"
+        class="hidden fixed inset-0 bg-black/75 z-[200] items-center justify-center p-6">
+        <div id="modal-box"
+        class="bg-[#0f172a] border border-yellow-400/25 rounded-2xl max-w-[460px] w-full p-8 text-center relative">
+            <div id="modal-ar"
+                class="text-[54px] text-yellow-400 mb-3 font-serif"
+                style="direction:rtl; text-shadow:0 0 30px rgba(250,204,21,0.5);">
+            </div>
+            <div id="modal-latin" class="text-2xl text-white font-sans font-light mb-1.5"></div>
+            <div id="modal-meaning" class="text-sm text-white/55 font-sans mb-5"></div>
+            <div id="modal-detail"
+                class="text-sm text-white/75 font-sans leading-relaxed border-t border-white/10 pt-4 mb-5 text-left">
+            </div>
+            <button id="modal-close"
+                onclick="closeModal()"
+                class="bg-yellow-400/15 border border-yellow-400/40 text-yellow-400 font-sans text-sm px-6 py-2 rounded-full cursor-pointer hover:bg-yellow-400/30 transition-all duration-200">
+                Tutup
+            </button>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
